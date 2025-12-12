@@ -1,2 +1,2 @@
 # Ludo
-Ludo made usinh HTML,CSS,JS
+Ludo made using HTML,CSS,JS
