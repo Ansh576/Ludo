@@ -553,7 +553,7 @@ function skipInactivePlayers() {
   if (activePlayers.length === 1) {
     const winner = activePlayers[0];
     setTimeout(() => {
-      alert(`Game Over! ${winner.charAt(0).toUpperCase() + winner.slice(1)} wins! All other players have finished.`);
+      alert(`Game Over! ${winner.charAt(0).toUpperCase() + winner.slice(1)} loses! All other players have finished.`);
     }, 500);
   }
   
@@ -874,7 +874,7 @@ function updatePieceStacking(cell){
       el.style.top = `${baseY + offsetY}%`;
       el.style.transform = `translate(-50%,-50%) scale(${scale})`;
       el.style.zIndex = activePieces.length + index + 10;
-      el.style.opacity = "0.5";
+      el.style.opacity = "0";
     });
   }
   
