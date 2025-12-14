@@ -70,6 +70,16 @@
   50% { box-shadow: 0 0 15px currentColor; }
   100% { box-shadow: 0 0 5px currentColor; }
 }
+.piece.multiple {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.piece:hover {
+  z-index: 999 !important;
+  transform: translate(-50%, -50%) scale(1.2) !important;
+  transition: transform 0.2s ease, z-index 0.2s ease !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 2px 0 rgba(255,255,255,0.4);
+}
 </style>
 </head>
 <body>
@@ -727,21 +737,16 @@ async function returnPieceHome(pieceId, penalty = false, specificHomeId = null){
   
   if(!targetHomeEl) targetHomeEl = document.getElementById(`${p.color}1home`);
   if(!targetHomeEl) return;
-
   p.posIndex = -1;
   p.isMoving = true;
-
-  const board = document.getElementById("board");
-  
+  const board = document.getElementById("board");  
   const rect = el.getBoundingClientRect();
   const boardRect = board.getBoundingClientRect();
   const startXPercent = ((rect.left - boardRect.left) / boardRect.width) * 100;
   const startYPercent = ((rect.top - boardRect.top) / boardRect.height) * 100;
-
   const homeRect = targetHomeEl.getBoundingClientRect();
   const targetXPercent = ((homeRect.left - boardRect.left + homeRect.width/2) / boardRect.width) * 100;
   const targetYPercent = ((homeRect.top - boardRect.top + homeRect.height/2) / boardRect.height) * 100;
-
   el.style.position = "absolute";
   el.style.left = startXPercent + "%";
   el.style.top = startYPercent + "%";
@@ -749,13 +754,10 @@ async function returnPieceHome(pieceId, penalty = false, specificHomeId = null){
   el.style.height = rect.height + "px";
   el.style.transition = "left 400ms ease, top 400ms ease, transform 0.2s ease";
   board.appendChild(el);
-
   await sleep(10);
   el.style.left = targetXPercent + "%";
   el.style.top  = targetYPercent + "%";
-
   await awaitTransition(el, 450);
-
   targetHomeEl.appendChild(el);
   el.style.position = "absolute";
   el.style.width = "";
@@ -765,9 +767,7 @@ async function returnPieceHome(pieceId, penalty = false, specificHomeId = null){
   el.style.transform = "translate(-50%,-50%) scale(1)";
   el.style.transition = "";
   updatePieceStacking(targetHomeEl);
-
   p.isMoving = false;
-  
   if (penalty) {
     consecutiveOnes[p.color] = 0;
   }
@@ -775,7 +775,6 @@ async function returnPieceHome(pieceId, penalty = false, specificHomeId = null){
 
 function updatePieceStacking(cell){
   if(!cell) return;
-  
   const allPieceElements = Array.from(cell.children).filter(c=>c.id && pieces[c.id]);
   const activePieces = allPieceElements.filter(el => {
     const piece = pieces[el.id];
@@ -788,7 +787,6 @@ function updatePieceStacking(cell){
   
   const totalPieces = allPieceElements.length;
   if(totalPieces === 0) return;
-
   allPieceElements.forEach(el=>{ 
     el.style.transition = "left 0.3s ease, top 0.3s ease, z-index 0.3s ease";
     el.style.boxShadow = "0 2px 5px rgba(0,0,0,0.2)";
@@ -801,42 +799,91 @@ function updatePieceStacking(cell){
     el.style.top = "50%";
     el.style.transform = "translate(-50%,-50%) scale(1)";
     el.style.zIndex = 1;
+    el.classList.remove('multiple');
     return;
   }
 
-  const maxRadius = Math.min(25 + (activePieces.length * 3), 45);
-  activePieces.forEach((el, index) => {
-    const totalActive = activePieces.length;
-    if (totalActive === 1) {
-      el.style.left = "50%";
-      el.style.top = "50%";
-    } else {
-      const angle = (index / totalActive) * 2 * Math.PI;
-      const radius = (index / totalActive) * maxRadius;
-      const x = 50 + radius * Math.cos(angle);
-      const y = 50 + radius * Math.sin(angle);
+  if (activePieces.length === 2) {
+    activePieces[0].style.left = "40%";
+    activePieces[0].style.top = "50%";
+    activePieces[0].style.transform = "translate(-50%,-50%) scale(0.95)";
+    activePieces[0].style.zIndex = 1;
+    activePieces[1].style.left = "60%";
+    activePieces[1].style.top = "50%";
+    activePieces[1].style.transform = "translate(-50%,-50%) scale(0.95)";
+    activePieces[1].style.zIndex = 2;
+  }
+  else if (activePieces.length === 3) {
+    activePieces[0].style.left = "50%";
+    activePieces[0].style.top = "40%";
+    activePieces[0].style.transform = "translate(-50%,-50%) scale(0.9)";
+    activePieces[0].style.zIndex = 1;
+    activePieces[1].style.left = "35%";
+    activePieces[1].style.top = "60%";
+    activePieces[1].style.transform = "translate(-50%,-50%) scale(0.9)";
+    activePieces[1].style.zIndex = 2;
+    activePieces[2].style.left = "65%";
+    activePieces[2].style.top = "60%";
+    activePieces[2].style.transform = "translate(-50%,-50%) scale(0.9)";
+    activePieces[2].style.zIndex = 3;
+  }
+  else if (activePieces.length === 4) {
+    activePieces[0].style.left = "40%";
+    activePieces[0].style.top = "40%";
+    activePieces[0].style.transform = "translate(-50%,-50%) scale(0.85)";
+    activePieces[0].style.zIndex = 1;
+    activePieces[1].style.left = "60%";
+    activePieces[1].style.top = "40%";
+    activePieces[1].style.transform = "translate(-50%,-50%) scale(0.85)";
+    activePieces[1].style.zIndex = 2;
+    activePieces[2].style.left = "40%";
+    activePieces[2].style.top = "60%";
+    activePieces[2].style.transform = "translate(-50%,-50%) scale(0.85)";
+    activePieces[2].style.zIndex = 3;
+    activePieces[3].style.left = "60%";
+    activePieces[3].style.top = "60%";
+    activePieces[3].style.transform = "translate(-50%,-50%) scale(0.85)";
+    activePieces[3].style.zIndex = 4;
+  }
+  else if (activePieces.length > 4) {
+    const cols = Math.ceil(Math.sqrt(activePieces.length));
+    const rows = Math.ceil(activePieces.length / cols);
+    const cellWidth = 100 / (cols + 1);
+    const cellHeight = 100 / (rows + 1);
+    const scale = Math.max(0.7, 1 - (activePieces.length * 0.05));
+    activePieces.forEach((el, index) => {
+      const col = index % cols;
+      const row = Math.floor(index / cols);
+      const x = (col + 1) * cellWidth;
+      const y = (row + 1) * cellHeight;
       el.style.left = `${x}%`;
       el.style.top = `${y}%`;
-    }
-    el.style.transform = "translate(-50%,-50%) scale(1)";
-    el.style.zIndex = index + 1;
-  });
+      el.style.transform = `translate(-50%,-50%) scale(${scale})`;
+      el.style.zIndex = index + 1;
+    });
+  }
   
-  inactivePieces.forEach((el, index) => {
-    const totalInactive = inactivePieces.length;
-    if (totalInactive === 1) {
-      el.style.left = "50%";
-      el.style.top = "50%";
+  if (inactivePieces.length > 0) {
+    const scale = 0.8;
+    const baseX = 80;
+    const baseY = 80;
+    inactivePieces.forEach((el, index) => {
+      const offsetX = (index % 3) * 8;
+      const offsetY = Math.floor(index / 3) * 8;
+      el.style.left = `${baseX + offsetX}%`;
+      el.style.top = `${baseY + offsetY}%`;
+      el.style.transform = `translate(-50%,-50%) scale(${scale})`;
+      el.style.zIndex = activePieces.length + index + 10;
+      el.style.opacity = "0.5";
+    });
+  }
+  
+  allPieceElements.forEach(el => {
+    if (totalPieces > 1) {
+      el.classList.add('multiple');
     } else {
-      const angle = (index / totalInactive) * 2 * Math.PI;
-      const radius = 15;
-      const x = 50 + radius * Math.cos(angle);
-      const y = 50 + radius * Math.sin(angle);
-      el.style.left = `${x}%`;
-      el.style.top = `${y}%`;
+      el.classList.remove('multiple');
     }
-    el.style.transform = "translate(-50%,-50%) scale(1)";
-    el.style.zIndex = activePieces.length + index + 10;
   });
 }
 
@@ -845,23 +892,25 @@ async function movePieceAlongPath(pieceId, targetIndex){
   const el = document.getElementById(pieceId);
   const board = document.getElementById("board");
   if(!p || !el || !board) return;
-
   if(p.isMoving) return;
   p.isMoving = true;
-
   const startIndex = p.posIndex === -1 ? -1 : p.posIndex;
-  const endIndex = (targetIndex === 'finish') ? paths[p.color].length-1 : targetIndex;
+  let endIndex;
+  let isFinishing = false;
+  if(targetIndex === 'finish'){
+    endIndex = paths[p.color].length - 1;
+    isFinishing = true;
+  } else {
+    endIndex = targetIndex;
+  }
   const pathCells = getPathCells(p.color, startIndex + 1, endIndex);
   if(pathCells.length === 0){ p.isMoving = false; return; }
-
   const rect = el.getBoundingClientRect();
   const width = rect.width, height = rect.height;
   const boardRect = board.getBoundingClientRect();
   const startX = rect.left - boardRect.left + board.scrollLeft;
   const startY = rect.top - boardRect.top + board.scrollTop;
-
   const oldCell = el.parentElement;
-
   el.style.transition = "left 180ms linear, top 180ms linear";
   el.style.width = width + "px";
   el.style.height = height + "px";
@@ -869,10 +918,8 @@ async function movePieceAlongPath(pieceId, targetIndex){
   el.style.transform = "translate(0,0)";
   el.style.left = startX + "px";
   el.style.top = startY + "px";
-
   board.appendChild(el);
   await sleep(8);
-
   for(let i=0;i<pathCells.length;i++){
     const cellId = pathCells[i];
     const cell = document.getElementById(cellId);
@@ -882,18 +929,31 @@ async function movePieceAlongPath(pieceId, targetIndex){
     const crect = cell.getBoundingClientRect();
     const targetLeft = crect.left - boardRect.left + (cell.offsetWidth/2) - width/2 + board.scrollLeft;
     const targetTop  = crect.top  - boardRect.top  + (cell.offsetHeight/2) - height/2 + board.scrollTop;
-
     el.style.left = `${targetLeft}px`;
     el.style.top  = `${targetTop}px`;
-
     await awaitTransition(el, 400);
     await sleep(30);
   }
 
   let finalCell = null;
-  if(targetIndex === 'finish'){
-    const finishId = paths[p.color][paths[p.color].length-1];
-    finalCell = document.getElementById(finishId) || document.getElementById('Finish');
+  if(isFinishing){
+    const finishId = paths[p.color][paths[p.color].length - 1];
+    finalCell = document.getElementById(finishId);
+    if(!finalCell){
+      const finishArea = document.getElementById('finish');
+      if(finishArea){
+        let finishContainer = document.getElementById(`${p.color}-finished-container`);
+        if(!finishContainer){
+          finishContainer = document.createElement('div');
+          finishContainer.id = `${p.color}-finished-container`;
+          finishContainer.style.position = 'relative';
+          finishContainer.style.width = '100%';
+          finishContainer.style.height = '100%';
+          finishArea.appendChild(finishContainer);
+        }
+        finalCell = finishContainer;
+      }
+    }
   } else {
     finalCell = document.getElementById(getCellIdForPath(p.color, endIndex));
   }
@@ -908,51 +968,44 @@ async function movePieceAlongPath(pieceId, targetIndex){
     el.style.transform = "translate(-50%,-50%)";
     el.style.transition = "";
     updatePieceStacking(finalCell);
-
-    let killedPieces = [];
-    
-  if(!safeCells.includes(finalCell.id) && !isFinishToken(finalCell.id)){
-    const children = Array.from(finalCell.children).filter(c=>c.id && pieces[c.id]);
-    let killCount = 0;
-  
-    for(const child of children){
-    if(child.id !== pieceId && pieces[child.id] && pieces[child.id].color !== p.color){
-      if(playerActive[pieces[child.id].color]) {
-        killCount++;
-        const pieceNumber = child.id.replace(pieces[child.id].color, '');
-        const originalHomeId = `${pieces[child.id].color}${pieceNumber}home`;
-        returnPieceHome(child.id, false, originalHomeId);
+    if(!isFinishing && !safeCells.includes(finalCell.id)){
+      const children = Array.from(finalCell.children).filter(c=>c.id && pieces[c.id]);
+      let killCount = 0;
+      for(const child of children){
+        if(child.id !== pieceId && pieces[child.id] && pieces[child.id].color !== p.color){
+          if(playerActive[pieces[child.id].color]) {
+            killCount++;
+            const pieceNumber = child.id.replace(pieces[child.id].color, '');
+            const originalHomeId = `${pieces[child.id].color}${pieceNumber}home`;
+            returnPieceHome(child.id, false, originalHomeId);
+          }
+        }
+      }
+      updatePieceStacking(finalCell);
+      if (killCount > 0) {
+        justKilled = true;
       }
     }
-  }
-  
-  updatePieceStacking(finalCell);
-  
-  if (killCount > 0) {
-    justKilled = true;
-  }
-}
   } else {
     if(oldCell) oldCell.appendChild(el);
     updatePieceStacking(oldCell);
   }
 
-  p.posIndex = (targetIndex === 'finish') ? 'finished' : endIndex;
+  if(isFinishing){
+    p.posIndex = 'finished';
+  } else {
+    p.posIndex = endIndex;
+  }
   p.isMoving = false;
-
   lastMovedPiece[p.color] = pieceId;
-
   if(oldCell && oldCell.id) updatePieceStacking(oldCell);
-
   afterMoveHandling(pieceId, gameState.diceValue);
 }
 
 function afterMoveHandling(pieceId, roll){
   const p = pieces[pieceId];
   if(!p) return;
-  
   checkAllPiecesFinished(p.color);
-  
   if (p.posIndex === 'finished') {
     gameState.diceValue = null;
     updateDiceAppearance();
@@ -969,13 +1022,14 @@ function afterMoveHandling(pieceId, roll){
   const currentPlayer = p.color;
   if (roll === 1) {
     consecutiveOnes[currentPlayer]++;
-    
     if (consecutiveOnes[currentPlayer] === 3 && lastMovedPiece[currentPlayer]) {
       const penaltyPiece = lastMovedPiece[currentPlayer];
       setTimeout(() => {
+        alert(`${currentPlayer.charAt(0).toUpperCase() + currentPlayer.slice(1)} rolled three 1's in a row! ${penaltyPiece} will be returned to home!`);
+      }, 100);
+      setTimeout(() => {
         returnPieceHome(penaltyPiece, true);
       }, 600);
-      
       consecutiveOnes[currentPlayer] = 0;
       moveToNextPlayer();
       gameState.diceValue = null;
@@ -1033,10 +1087,10 @@ function handlePieceSelection(pieceId){
     if (roll === 6) {
       gameState.diceValue = null;
       updateDiceAppearance();
-    } else {
-      return;
     }
+    return;
   }
+  
   movePieceAlongPath(pieceId, newIndex);
 }
 
@@ -1080,7 +1134,6 @@ if(diceBox){
           updateDiceAppearance();
           return;
         }
-        
         moveToNextPlayer();
         gameState.diceValue = null;
         updateDiceAppearance();
@@ -1117,4 +1170,3 @@ document.onkeydown = function(e) {
 </script>
 </body>
 </html>
-
